@@ -1,5 +1,7 @@
 {
     "name": "crtl/wp-plugin-base",
+    "description": "Provides API to register wordpress hooks and actions using PHP8 Attributes and reflection API",
+    "license": "MIT",
     "autoload": {
         "psr-4": {
             "Crtl\\WpPluginBase\\": "src/"
