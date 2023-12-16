@@ -1,0 +1,17 @@
+{
+    "name": "crtl/wp-plugin-base",
+    "autoload": {
+        "psr-4": {
+            "Crtl\\WpPluginBase\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Marvin Petker",
+            "email": "mp@borntocreate.de"
+        }
+    ],
+    "require": {
+      "php": "^8.1"
+    }
+}
