@@ -83,13 +83,15 @@ abstract class PluginBase
      * @param ...$args
      * @return static
      */
-    static public function init(...$args): static
+    static public function init(...$args)
     {
-        if (static::$instance) return static::$instance;
+        static $instances = [];
+        $class = get_called_class();
 
-        static::$instance = new static(...$args);
-
-        return static::$instance;
+        if (!isset($instances[$class])) {
+            $instances[$class] = new $class(...$args);
+        }
+        return $instances[$class];
     }
 
 }
