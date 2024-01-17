@@ -50,33 +50,39 @@ abstract class PluginBase
         $reflection = new ReflectionClass(static::class);
         foreach ($reflection->getMethods() as $method) {
             $callable = [$this, $method->name];
-            $attrs = $method->getAttributes();
 
-            /** @var WPHook|null $attr */
-            $attr = (!empty($attrs[0]) ? $attrs[0] : null)?->newInstance();
+            // Get attributes and filter for attributes implementing WPHook
+            $attrs = array_filter(
+                array_map(fn($a) => $a->newInstance(), $method->getAttributes()),
+                fn($attr) => $attr instanceof WPHook
+            );
 
             $pattern = "/^(filter|action)_*/";
 
-            if (!$attr && !preg_match($pattern, $method->name)) {
+            if (empty($attrs) && !preg_match($pattern, $method->name)) {
                 continue;
             }
 
 
-            $name = $attr?->name ?? preg_replace("/^(filter|action)_/", "", $method->name);
-            $priority = $attr?->priority ?? 10;
-            $numArgs = $attr?->numArgs ?? count($method->getParameters());
+            if (empty($attrs)) {
+                $args = [
+                    preg_replace("/^(filter|action)_/", "", $method->name),
+                    10,
+                    count($method->getParameters())
+                ];
 
+                $attrs = [
+                    str_starts_with("action_", $method->name) ? new WPAction(...$args) : new WPFilter(...$args)
+                ];
+            }
 
-            $isAction = ($attr instanceof WPAction) || str_starts_with($method->name, "action");
-            $isFilter = ($attr instanceof WPFilter) || str_starts_with($method->name, "filter");
+            $name = preg_replace("/^(filter|action)_/", "", $method->name);
+            foreach ($attrs as $attr) {
 
-            if ($isFilter) {
-                add_filter($name, $callable, $priority, $numArgs);
-            } else if ($isAction) {
-                add_action($name, $callable, $priority, $numArgs);
+                $fn = $attr instanceof WPAction ? "add_action" : "add_filter";
+                call_user_func($fn, $attr->name ?? $name, $callable, $attr->priority, $attr->numArgs);
             }
         }
-
     }
 
     /**
