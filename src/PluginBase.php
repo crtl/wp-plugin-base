@@ -52,10 +52,7 @@ abstract class PluginBase
             $callable = [$this, $method->name];
 
             // Get attributes and filter for attributes implementing WPHook
-            $attrs = array_filter(
-                array_map(fn($a) => $a->newInstance(), $method->getAttributes()),
-                fn($attr) => $attr instanceof WPHook
-            );
+            $attrs = $method->getAttributes(WPHook::class, \ReflectionAttribute::IS_INSTANCEOF);
 
             $pattern = "/^(filter|action)_*/";
 
@@ -74,6 +71,8 @@ abstract class PluginBase
                 $attrs = [
                     str_starts_with("action_", $method->name) ? new WPAction(...$args) : new WPFilter(...$args)
                 ];
+            } else {
+                $attrs = array_map(fn($attr) => $attr->newInstance(), $attrs);
             }
 
             $name = preg_replace("/^(filter|action)_/", "", $method->name);
