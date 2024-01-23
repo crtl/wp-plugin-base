@@ -7,13 +7,28 @@
             "Crtl\\WpPluginBase\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Crtl\\WpPluginBase\\Test\\": "tests/"
+        }
+    },
     "authors": [
         {
             "name": "Marvin Petker",
             "email": "mp@borntocreate.de"
         }
     ],
+    "repositories": [
+        {
+            "url": "https://github.com/crtl/php-mock.git",
+            "type": "git",
+            "reference": "global-namespaces"
+        }
+    ],
     "require": {
       "php": "^8.1"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^10"
     }
 }
